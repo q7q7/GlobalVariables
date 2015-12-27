@@ -1,0 +1,9 @@
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\bin\Debug\GlobalVariables.exe.config
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.csprojResolveAssemblyReference.cache
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.Form1.resources
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.Properties.Resources.resources
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.csproj.GenerateResource.Cache
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\bin\Debug\GlobalVariables.exe
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\bin\Debug\GlobalVariables.pdb
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.exe
+c:\users\дима\documents\visual studio 2012\Projects\GlobalVariables\GlobalVariables\obj\Debug\GlobalVariables.pdb

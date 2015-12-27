@@ -1,0 +1,424 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Grids, XPMan, Menus;
+
+type
+  TMain1 = class(TForm)
+    Info: TStringGrid;
+    NewInfo: TStringGrid;
+    allInfo: TStringGrid;
+    l1: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Sort: TButton;
+    New: TButton;
+    save: TButton;
+    Label3: TLabel;
+    NameDelete: TEdit;
+    Delete: TButton;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    XPManifest1: TXPManifest;
+    menu: TMainMenu;
+    a1: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    add: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure NewClick(Sender: TObject);
+    procedure saveClick(Sender: TObject);
+    procedure DeleteClick(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure SortClick(Sender: TObject);
+    procedure addClick(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+    Information = Record
+      NameDevice : String;
+      FirmaName : String;
+      Characteristic : String;
+      Guarantee : Integer;
+      Price : Integer;
+  end;
+
+  TInformation = Array of Information;
+var
+  Main1: TMain1;
+  Informations : TInformation;
+
+implementation
+
+{$R *.dfm}
+procedure AddNewInfo(SG: TStringGrid; Line, NumberOfInfo: Integer);
+var
+   i: Byte;
+begin
+   if NumberOfInfo = -1 then
+   begin
+      i := Length(Informations);
+      SetLength(Informations, i + 1);
+   end
+   else
+      i := NumberOfInfo;
+
+
+   Informations[i].NameDevice := SG.Cells[0, Line];
+   Informations[i].FirmaName := SG.Cells[1, Line];
+   Informations[i].Characteristic := SG.Cells[2, Line];
+   Informations[i].Guarantee := StrToInt(SG.Cells[3, Line]);
+   Informations[i].Price := StrToInt(SG.Cells[4, Line]);
+end;
+
+procedure CleanGrid(SG: TStringGrid);
+var
+   i: Byte;
+begin
+   for i := 1 to SG.RowCount - 1 do
+       SG.Rows[i].Text := '';
+   SG.RowCount := 2;
+end;
+
+
+procedure FillingGrid(CurrentGrid: TStringGrid);
+begin
+   CurrentGrid.Cols[0].Text := 'название устройства' ;
+   CurrentGrid.Cols[1].Text := 'фирма изготовитель';
+   CurrentGrid.Cols[2].Text := 'главная техническая характеристика';
+   CurrentGrid.Cols[3].Text := 'гарантия';
+   CurrentGrid.Cols[4].Text := 'Цена';
+end;
+
+procedure TMain1.FormCreate(Sender: TObject);
+begin
+    FillingGrid(AllINFO);
+    FillingGrid(Info);
+    FillingGrid(NewInfo);
+end;
+
+procedure PrintInfo(SG: TStringGrid; NumberInfo: Byte);
+var
+   Line: Byte;
+begin
+   Line := SG.RowCount - 1;
+   SG.RowCount := SG.RowCount + 1;
+   SG.Cells[0, Line] := Informations[NumberInfo].NameDevice;
+   SG.Cells[1, Line] := Informations[NumberInfo].FirmaName;
+   SG.Cells[2, Line] := Informations[NumberInfo].Characteristic;
+   SG.Cells[3, Line] := FloatToStr(Informations[NumberInfo].Guarantee);
+   SG.Cells[4, Line] := IntToStr(Informations[NumberInfo].Price);
+end;
+
+procedure PrintTwoYear(SG: TStringGrid; NumberInfo: Byte);
+var
+   Line: Byte;
+begin
+   Line := SG.RowCount - 1;
+   
+   if  (Informations[NumberInfo].Guarantee)<=24 then
+      begin
+          SG.RowCount := SG.RowCount + 1;
+          SG.Cells[0, Line] := Informations[NumberInfo].NameDevice;
+          SG.Cells[1, Line] := Informations[NumberInfo].FirmaName;
+          SG.Cells[2, Line] := Informations[NumberInfo].Characteristic;
+          SG.Cells[3, Line] := FloatToStr(Informations[NumberInfo].Guarantee);
+          SG.Cells[4, Line] := IntToStr(Informations[NumberInfo].Price);
+      end;
+end;
+
+procedure PrintAllInformations(SG: TStringGrid);
+var
+   NumberInfo: Byte;
+begin
+   CleanGrid(SG);
+   for NumberInfo := 0 to length(Informations) - 1 do
+       PrintInfo (SG, NumberInfo);
+   SG.RowCount := SG.RowCount - 1;
+end;
+
+procedure PrintTwoYearInformations(SG: TStringGrid);
+var
+   NumberInfo: Byte;
+begin
+   CleanGrid(SG);
+   for NumberInfo := 0 to length(Informations) - 1 do
+       PrintTwoYear (SG, NumberInfo);
+   SG.RowCount := SG.RowCount - 1;
+end;
+
+function GetInfoId(InfoName: String): Integer;
+var
+   i: Integer;
+   ID: Integer;
+begin
+   ID := -1;
+   for i := 0 to Length(Informations) - 1 do
+       if Informations[i].NameDevice = InfoName then
+           ID := i;
+
+   GetInfoId := ID;
+end;
+
+function CheckGrid(SG: TStringGrid; Line: Byte): Boolean;
+var
+   i: Byte;
+   IsGridCorrect: Boolean;
+begin
+   IsGridCorrect := True;
+   i := 0;
+   while (i < 5) and (IsGridCorrect) do
+     begin
+       if Length(SG.Cells[i, Line]) = 0 then
+       begin
+           IsGridCorrect := False;
+           ShowMessage('Пустые поля недопустимы');
+       end;
+       Inc(i);
+
+    end;
+       CheckGrid := IsGridCorrect;
+end;
+
+procedure ReadInformationsFromGrid(SG: TStringGrid);
+var
+   i: Integer;
+begin
+   for i := 1 to SG.RowCount - 1 do
+       if CheckGrid(SG, i) then
+           AddNewInfo(SG, i, i - 1);
+end;
+
+procedure DeleteInfo(InfoName: String);
+var
+   CurrentInfo: Integer;
+   LastInfo: Integer;
+begin
+   CurrentInfo := GetInfoId(InfoName);
+   LastInfo := Length(Informations) - 1;
+   if (CurrentInfo <> -1) then
+   begin
+       Informations[CurrentInfo] := Informations[Lastinfo];
+       SetLength(Informations, LastInfo);
+   end
+   else
+       ShowMessage('Удаляемый товар не найден');
+end;
+
+
+function ReadFromFile(FileName: String): Boolean;
+var
+   InputFile: Text;
+   i: Integer;
+   InputArray: TInformation;
+   IsCorrectValue : boolean ;
+begin
+   Assign(InputFile, FileName);
+   Reset(InputFile);
+   i := -1;
+   IsCorrectValue := true ;
+   {$I-}
+   while ((not EOf(InputFile)) and (IsCorrectValue))do
+   begin
+       Inc(i);
+       SetLength(InputArray, i + 1);
+       ReadLn(InputFile, InputArray[i].NameDevice);
+       ReadLn(InputFile, InputArray[i].FirmaName);
+       ReadLn(InputFile,InputArray[i].Characteristic  );
+       ReadLn(InputFile, InputArray[i].Guarantee);
+       ReadLn(InputFile, InputArray[i].Price);
+       ReadLn(InputFile);
+   end;
+   CloseFile(InputFile);
+
+   if IsCorrectValue then
+       Informations :=  InputArray;
+   ReadFromFile := IsCorrectValue;
+end;
+
+procedure PrintIntoFile(FileName: String);
+var
+   i: Byte;
+   OutputFile: Text;
+begin
+   AssignFile(OutputFile, FileName);
+   Rewrite(OutputFile);
+   for i := 0 to length(Informations) - 1 do
+   begin
+       WriteLn(OutputFile, Informations[i].NameDevice);
+       WriteLn(OutputFile, Informations[i].FirmaName);
+       WriteLn(OutputFile, Informations[i].Characteristic);
+       WriteLn(OutputFile, Informations[i].Guarantee);
+       WriteLn(OutputFile, Informations[i].Price);
+
+       WriteLn(OutputFile);
+   end;
+   Close(OutputFile);
+end;
+
+
+
+procedure TMain1.NewClick(Sender: TObject);
+
+begin
+    if (StrTOInt(newInfo.Cells[3, 1]) < 0) then
+      begin
+       ShowMessage ( ' Интересно,а как это гарантия может быть отрицательной');
+       exit;
+      end;
+   if (StrTOInt(newInfo.Cells[4, 1]) < 0) then
+       begin
+         ShowMessage ( ' Интересно, это что получается магазин вам ещё и доплатит');
+         exit;
+       end;
+    if CheckGrid(NewInfo, 1) then
+   begin
+       if GetInfoID(NewInfo.Cells[0, 1]) = -1 then
+          begin
+           AddNewInfo(NewInfo, 1, -1);
+           PrintAllInformations(AllInfo);
+          end
+       else
+           ShowMessage('Товар с таким именем уже записан');
+   end;
+       if StrToFloat(newinfo.cells[3,1])<= 24 then
+           PrintTwoYearInformations(Info);
+
+
+end;
+
+
+
+procedure TMain1.saveClick(Sender: TObject);
+begin
+  if (StrTOInt(AllInfo.Cells[3, 1]) < 0) then
+      begin
+       ShowMessage ( ' Интересно,а как это гарантия может быть отрицательной');
+       exit;
+      end;
+   if (StrTOInt(allInfo.Cells[4, 1]) < 0) then
+       begin
+         ShowMessage ( ' Интересно, это что получается магазин вам ещё и доплатит');
+         exit;
+       end;
+  if Length(Informations) <> 0 then
+       ReadInformationsFromGrid(AllInfo)
+   else
+       ShowMessage('Мы не можем изменять, так как нет ни одного наименования товара');
+end;
+
+procedure TMain1.DeleteClick(Sender: TObject);
+begin
+  if Length(Informations) <> 0 then
+   begin
+       DeleteInfo(NameDelete.Text);
+       if Length(Informations) <> 0 then
+           PrintAllInformations(AllInfo)
+       else
+           CleanGrid(AllInfo);
+   end
+   else
+       ShowMessage('Некого удалять. Работников нет.');
+end;
+
+
+
+procedure TMain1.N3Click(Sender: TObject);
+begin
+    showMessage('1.	Записи' + #10 + #13  +
+'Сведения о комплектующих компьютера' + #10 + #13  +
+'-	название устройства;' + #10 + #13  +
+'-	фирма изготовитель;' + #10 + #13  +
+'-	главная техническая характеристика;'+ #10 + #13  +
+'-	гарантия;' + #10 + #13  +
+'-	цена.' + #10 + #13  +
+'Использовать тип "запись".' + #10 + #13  +
+'Вывести сведения о комплектующих компьютера с гарантией до 2 лет в порядке убывания цен.');
+
+end;
+
+procedure TMain1.N1Click(Sender: TObject);
+begin
+    OpenDialog1.Filter := 'Text Files only |*.txt' ;
+      if OpenDialog1.Execute then
+       if ReadFromFile(OpenDialog1.FileName) then
+       begin
+           ShowMessage('Загрузка из файла прошла успешно');
+           PrintAllInformations(AllInfo);
+       end
+       else
+           ShowMessage('Загрузка из файла прошла неудачно');
+end;
+
+procedure TMain1.N2Click(Sender: TObject);
+begin
+  if  Length(Informations) <> 0 then
+   begin
+       SaveDialog1.Filter := 'Text Files only |*.txt' ;
+       if SaveDialog1.Execute then
+       begin
+           PrintIntoFile(SaveDialog1.FileName);
+           ShowMEssage('Запись в файл прошла успешно');
+           exit;
+       end;
+   end
+   else
+      begin
+       ShowMEssage('Вы пытаетесь сохранить пустой файл');
+       exit;
+      end;
+end;
+
+procedure TMain1.SortClick(Sender: TObject);
+var
+   i,j:integer;
+begin
+    for i:=0 to allInfo.RowCount do
+        for j:=i+1 to allInfo.RowCount do
+            if info.Cells[4,i] < info.Cells[4,j] then
+              begin
+                info.cols[0].Exchange(j,i);
+                info.cols[1].Exchange(j,i);
+                info.cols[2].Exchange(j,i);
+                info.cols[3].Exchange(j,i);
+                info.cols[4].Exchange(j,i);
+              end;
+end;
+
+procedure TMain1.addClick(Sender: TObject);
+var
+    i :byte;
+begin
+   for i := 1 to allInfo.rowCount-1 do
+      if StrToFloat(Allinfo.cells[3,i]) <= 24 then
+            PrintTwoYearInformations(Info);
+
+end;
+
+
+
+end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
